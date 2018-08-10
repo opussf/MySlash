@@ -1,0 +1,9 @@
+## Interface: @INTERFACE@
+## Title: MySlash
+## Notes: Create custom slash commands. @VERSION@
+## Author: opussf
+## Version: @VERSION@
+## Description: Create custom slash commands.
+## SavedVariables: MySlash_options MySlash_cmds
+## SavedVariablesPerCharacter:
+MySlash.lua
