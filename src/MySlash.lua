@@ -15,9 +15,6 @@ COLOR_NEON_BLUE = "|cff4d4dff";
 COLOR_END = "|r";
 
 MySlash = {}
-MySlash.Frame = CreateFrame( "Frame" )
-MySlash.Frame:RegisterEvent( "ADDON_LOADED" )
-MySlash.Frame:SetScript( "OnEvent", MySlash[event] )
 
 MySlash_cmds = {
 		["eject"] = {
@@ -48,149 +45,13 @@ MySlash_cmds = {
 				"end" },
 		},
 
-		["gfx"] = {
-			desc = "restart the gfx engine",
-			vers = 1,
-			state = on,
-			code = {
-				"RestartGx()" },
-		},
-
-		["fquit"] ={
-			desc = "fast quit / force quit",
-			vers = 1,
-			state = on,
-			code = {
-				"ForceQuit()" },
-		},
-
-		["tele"] = {
-			desc = "teleport in/out of lfg dungeon",
-			vers = 1,
-			state = on,
-			code = {
-				"LFGTeleport(IsInInstance())" },
-		},
-
-		["p2r"] = {
-			desc = "convert your party to a raid",
-			vers = 1,
-			state = on,
-			code = {
-				"ConvertToRaid()" },
-		},
-
-		["r2p"] = {
-			desc = "convert your raid to a party",
-			vers = 1,
-			state = on,
-			code = {
-				"ConvertToParty()" },
-		},
-
-		["clear"] = {
-			desc = "clear all world markers (smoke bombs)",
-			vers = 1,
-			state = on,
-			code =  {
-				"ClearRaidMarker()" },
-		},
-
-		["cloak"] = {
-			desc = "toggle your cloak visibility",
-			vers = 1,
-			state = on,
-			code = {
-				"ShowCloak( not(ShowingCloak()) )" },
-		},
-
-		["helm"] = {
-			desc = "toggle your helm visibility",
-			vers = 1,
-			state = on,
-			code = {
-				"ShowHelm( not(ShowingHelm()) )" },
-		},
-
-		["lvgrp"] = {
-			desc = "will leave your group",
-			vers = 1.05,
-			state = on,
-			code = {
-				"LeaveParty()" },
-		},
-
-		["passloot"] = {
-			desc = "will toggle pass on loot",
-			vers = 1.05,
-			state = on,
-			code = {
-				"local passing = GetOptOutOfLoot()",
-				"if passing then",
-				"     SetOptOutOfLoot()",
-				"     print('You are no longer passing on all loot')",
-				"else",
-				"     SetOptOutOfLoot(1)",
-				"     print('You are now passing on all loot')",
-				"end" },
-		},
-
-		["in"] = {
-			desc = "will run a slash command in a set amount of time \"/in ## /whatever\" or \"/in #:## /whatever\" (not all slash commands can be delayed)",
-			vers = 3.02,
-			state = on,
-			code = {
-				"local delay, what = string.split(' ', msg, 2)",
-				"if string.find( delay, ':' ) then",
-				"     local mins, secs = string.split(':', delay)",
-				"     mins = tonumber(mins)",
-				"     secs = tonumber(secs)",
-				"     delay = (mins * 60) + secs",
-				"else",
-				"     delay = tonumber(delay)",
-				"end",
-				"if delay <= 0 then",
-				"     print('/in delay must be greater than 0')",
-				"     return",
-				"end",
-				"BillsUtils.Wait( delay, (MacroEditBox:GetScript('OnEvent')), MacroEditBox, 'EXECUTE_CHAT_LINE', what )" },
-		},
-
-		["ready"] = {
-			desc = "initiate a ready check",
-			vers = 1.1,
-			state = on,
-			code = {
-				"DoReadyCheck()" },
-		},
-
-		["role"] = {
-			desc = "initiates a role check",
-			vers = 1.1,
-			state = on,
-			code = {
-				"InitiateRolePoll()" },
-		},
-
-		["sha"] = {
-			desc = "checks to see if you did the \"Sha of Anger\"",
-			vers = 1.25,
-			state = on,
-			code = {
-				"if ( IsQuestFlaggedCompleted(32099) ) then",
-				"     print(\"You have completed \\\"Sha of Anger\\\" this week.\")",
-				"else",
-				"     print(\"You haven\'t completed \\\"Sha of Anger\\\" this week.\")",
-				"end" },
-		},
-
 		["exp"] = {
 			desc = "displays your experience and rested experience",
 			vers = 1.15,
 			state = on,
 			code = {
 				"local unit = 'player'",
-				"if(UnitLevel( unit ) < 90) then",
+				"if(UnitLevel( unit ) < 110) then",
 				"     local XP = UnitXP(unit)",
 				"     local MaxXP = UnitXPMax( unit )",
 				"     local XPE = GetXPExhaustion()",
@@ -198,69 +59,6 @@ MySlash_cmds = {
 				"     print( ('Rested exp: %.2d k'):format( XPE / 1000) )",
 				"else",
 				"     print('You are at max level.')",
-				"end" },
-		},
-
-		["toast"] = {
-			desc = "sets or clears your Battle-Net toast message",
-			vers = 1,
-			state = on,
-			 code = {
-				"if msg ~= '' then",
-				"     BNSetCustomMessage( msg )",
-				"     print('Toast message set to: '..msg)",
-				"else",
-				"     BNSetCustomMessage( '' )",
-				"     print('Toast message cleared' )",
-				"end" },
-		},
-
-		["names"] = {
-			desc = "toggles the display of names in the 3d world",
-			vers = 1.3,
-			state = on,
-			code = {
-				"if InCombatLockdown() then",
-				"     print('You can no longer toggle names while in combat')",
-				"     return",
-				"end",
-				"if type(saved.showing) ~= 'boolean' then",
-				"     saved.showing = true",
-				"end",
-				"local what = { 'UnitNameEnemyGuardianName', 'UnitNameEnemyPetName', 'UnitNameEnemyPlayerName', 'UnitNameEnemyTotemName',",
-				"     'UnitNameFriendlyGuardianName', 'UnitNameFriendlyPetName', 'UnitNameFriendlyPlayerName', 'UnitNameFriendlySpecialNPCName',",
-				"     'UnitNameFriendlyTotemName', 'UnitNameGuildTitle', 'UnitNameHostleNPC', 'UnitNameNPC',",
-				"     'UnitNameNonCombatCreatureName', 'UnitNameOwn', 'UnitNamePlayerGuild', 'UnitNamePlayerPVPTitle',",
-				"     'nameplateShowEnemies', 'nameplateShowEnemyGuardians', 'nameplateShowEnemyPets', 'nameplateShowEnemyTotems',",
-				"     'nameplateShowFriendlyGuardians', 'nameplateShowFriendlyPets', 'nameplateShowFriendlyTotems', 'nameplateShowFriends',",
-				"     }",
-				"if saved.showing then",
-				"     for x = 1, #what do",
-				"          saved[what[x]] = GetCVar(what[x])",
-				"          SetCVar( what[x], '0')",
-				"     end",
-				"     saved.showing = false",
-				"else",
-				"     for x = 1, #what do",
-				"          SetCVar( what[x], saved[what[x]])",
-				"     end",
-				"     saved.showing = true",
-				"end" },
-		},
-
-		["cdown"] = {
-			desc = "counts down from passed number by optional second passed number",
-			vers = 1.1,
-			state = on,
-			code = {
-				"local delay, by = string.split(' ', msg)",
-				"delay = tonumber(delay)",
-				"by = tonumber(by)",
-				"if not(by) then by = 1 end",
-				"if delay then",
-				"	for x = delay, 0, -by do",
-				"		BillsUtils.Wait( delay, SendChatMsg, tostring(x), 'SAY' )",
-				"	end",
 				"end" },
 		},
 
@@ -301,165 +99,27 @@ MySlash_cmds = {
 				"BillsUtils.Wait( 5, (MacroEditBox:GetScript('OnEvent')), MacroEditBox, 'EXECUTE_CHAT_LINE', '/quitaftertaxi' )" },
 		},
 
-		["mount"] = {
-			desc = "summons the first mount matching the passed string (attempts flying mounts first)",
-			vers = 2.04,
+		["popcorn"] = {
+			desc = "Pop some popcorn",
+			vers = 1.0,
+			alias = "pop",
 			state = on,
 			code = {
-				"msg = string.lower(msg)",
-				"if InCombatLockdown() then",
-				"     print('You cannot summon a mount this way while in combat')",
-				"     return",
-				"elseif msg == '' then",
-				"     print('proper usage is /mount partialmountname')",
-				"     return",
-				"elseif msg == 'random' then",
-				"     C_MountJournal.Summon(0)",
-				"     print('Trying to summon a random favorite mount for you')",
-				"     return",
-				"end",
-				"local flyable = IsFlyableArea()",
-				"local Match, Name",
-				"for x = 1, C_MountJournal.GetNumMounts() do",
-				"     local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, hideOnChar, isCollected = C_MountJournal.GetMountInfo(x)",
-				"     if not( hideOnChar ) and isUsable and isCollected then",
-				"          local creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType = C_MountJournal.GetMountInfoExtra(x)",
-				"          if string.find( string.lower(creatureName), msg, nil, true ) then",
-				"               if (flyable and (mountType == 247 or mountType == 248)) or not(flyable) then",
-				"                    Match, Name = x, creatureName",
-				"                    break",
-				"               elseif not( Match ) then",
-				"                    Match, Name = x, creatureName",
-				"               end",
-				"          end",
-				"     end",
-				"end",
-				"if Match then",
-				"     C_MountJournal.Summon(Match)",
-				"     print('Summoning '..Name)",
-				"else",
-				"     print('No usable mount matching \\\"'..msg..'\\\" was found.')",
-				"end" },
-		},
-
-		["critter"] = {
-			desc = "summons the first vanity pet matching the passed string (attempts favorite pets first)",
-			vers = 1.22,
-			alias = "vpet",
-			state = on,
-			code = {
-				"msg = string.lower(msg)",
-				"if InCombatLockdown() then",
-				"     print('You cannot summon a pet this way while in combat')",
-				"     return",
-				"elseif msg == '' then",
-				"     print('proper usage is /critter PartialPetName')",
-				"     return",
-				"end",
-				"local numPets, numOwned = C_PetJournal.GetNumPets()",
-				"local Match, Name",
-				"for x = 1, numPets do",
-				"     local petID, speciesID, owned, customName, level, favorite, isRevoked, speciesName, icon, petType, companionID, tooltip, description, isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(x)",
-				"     if owned and ( string.find( (string.lower(customName and customName or '')), msg, nil, true ) or string.find( (string.lower(speciesName)), msg, nil, true )  )then",
-				"          if favorite then",
-				"               Match, Name = petID, string.find( string.lower(customName and customName or ''), msg, nil, true) and customName or speciesName",
-				"               break",
-				"          elseif not( Match ) then",
-				"               Match, Name = petID, string.find( string.lower(customName and customName or ''), msg, nil, true) and customName or speciesName",
-				"          end",
-				"     end",
-				"end",
-				"if Match then",
-				"     C_PetJournal.SummonPetByGUID(Match)",
-				"     print('Summoning '..Name)",
-				"else",
-				"     print('No owned vanity pet matching \\\"'..msg..'\\\" was found.')",
-				"end" },
-		},
-
-		["wboss"] = {
-			desc = "Are the weekly world bosses/quests done?",
-			vers = 1.2,
-			alias = "weekly",
-			state = on,
-			code = {
-				"local completed, uncomplete = {}, {}",
-				"local wb = { 	Ordos = 33118,",
-				"     ['Trove of the Thunder King'] = 32609,",
-				"     Celestials = 33117,",
-				"     Galleon = 32098,",
-				"     Nalak = 32518,",
-				"     Oondasta = 32519,",
-				"     ['Sha of Anger'] = 32099,",
-				"     ['Victory In Wintergrasp'] = {13181, 13183},",
-				"     ['Victory In Tol Barad'] = {28882, 28884},",
-				"     ['Empowering the Hourglass'] = 33338,",
-				"     ['Strong Enough To Survive'] = 33334,",
-				"}",
-				"for k, v in pairs( wb ) do",
-				"     if (type(v) == 'table' and (IsQuestFlaggedCompleted(v[1]) or IsQuestFlaggedCompleted(v[2]))) or (type(v) == 'number' and IsQuestFlaggedCompleted(v)) then",
-				"          completed[#completed + 1] = k",
-				"     else",
-				"          uncomplete[#uncomplete + 1] = k",
-				"     end",
-				"end",
-				"table.sort(completed)",
-				"table.sort(uncomplete)",
-				"print('Weekly world bosses / quest complete?')",
-				"if #completed > 0 then",
-				"     print('\\n|cFF66CC00Completed:')",
-				"     for x = 1, #completed do",
-				"          print('|cff80FF00      '..completed[x])",
-				"     end",
-				"end",
-				"if #uncomplete > 0 then",
-				"     print('\\n|cFFFF3333Uncomplete:')",
-				"     for x = 1, #uncomplete do",
-				"          print('|cFFFF6666      '..uncomplete[x])",
-				"     end",
-				"end" },
-		},
-
-		["dboss"] = {
-			desc = "Are the daily world bosses/quests done?",
-			vers = 1.15,
-			alias = "daily",
-			state = on,
-			code = {
-				"local completed, uncomplete = {}, {}",
-				"local db = { 	['Path of the Mistwalker'] = 33374,",
-				"     ['Timeless Trivia'] = 33211,",
-				"     ['Neverending Spritewood'] = 32961,",
-				"     Zarhym = 32962,",
-				"     ['Archiereus of Flame'] = 333112,",
-				"     ['Blingtron 4000'] = 31752,",
-				"}",
-				"for k, v in pairs( db ) do",
-				"     if (type(v) == 'table' and (IsQuestFlaggedCompleted(v[1]) or IsQuestFlaggedCompleted(v[2]))) or (type(v) == 'number' and IsQuestFlaggedCompleted(v)) then",
-				"          completed[#completed + 1] = k",
-				"     else",
-				"          uncomplete[#uncomplete + 1] = k",
-				"     end",
-				"end",
-				"table.sort(completed)",
-				"table.sort(uncomplete)",
-				"print('Daily world bosses / quest complete?')",
-				"if #completed > 0 then",
-				"     print('\\n|cFF66CC00Completed:')",
-				"     for x = 1, #completed do",
-				"          print('|cff80FF00      '..completed[x])",
-				"     end",
-				"end",
-				"if #uncomplete > 0 then",
-				"     print('\\n|cFFFF3333Uncomplete:')",
-				"     for x = 1, #uncomplete do",
-				"          print('|cFFFF6666      '..uncomplete[x])",
-				"     end",
+				"if( PlayerHasToy( 162539 ) ) then",
+				"    print( 'Popping corn' )",
+				"    UseToy( 162539 )",
 				"end" },
 		},
 
 	}
 
+
+function MySlash.OnLoad()
+	SLASH_MYSLASH1 = "/MYSLASH"
+	SlashCmdList["MYSLASH"] = MySlash.Command
+	MySlash_log = {}
+	MySlash_Frame:RegisterEvent( "ADDON_LOADED" )
+end
 function MySlash.Print( msg, showName)
 	-- print to the chat frame
 	-- set showName to false to suppress the addon name printing
@@ -469,68 +129,43 @@ function MySlash.Print( msg, showName)
 	DEFAULT_CHAT_FRAME:AddMessage( msg )
 end
 function MySlash.Enable( index )
+	-- from index ( 'xx' ) need to create:
+	-- SLASH_XX1 = "/XX"  Note....  SLASH_XX2 = "/<alias>"
+	-- and SlashCmdList["XX"] = funcref
+	--print( "index: "..index )
 
-	local cmdKey = "SLASH_%s"
-	cmdName = cmdKey:format( string.upper( index ) )  -- build the cmdName "SLASH_cmd" base
-		_G[("%s1"):format( cmdName )] = ("/%s"):format( string.upper( index ) )  -- assign this to the global variable
-	--RunScript( ('SLASH_%s1 = "/%s"'):format( cmdName, string.lower( index ) ) )
+	-- make the cmdList.  string of all commands and aliases, master cmd being first.  All uppercase
+	local cmdList = string.upper( index ..( MySlash_cmds[index].alias and " "..MySlash_cmds[index].alias or "" ) )
+
+	-- split this into a table / array to loop through.
+	local cmdTable = { strsplit( " ", cmdList ) }
+
+	for x = 1, #cmdTable do
+		_G[("SLASH_%s%d"):format( cmdTable[1], x )] = ("/%s"):format( cmdTable[x] )
+	end
+
+	-- clean up the code for this command anc create a function reference
 	local codeCleanup = { unpack( MySlash_cmds[index].code ) }
 	for x = 1, #codeCleanup do
 		codeCleanup[x] = codeCleanup[x]:gsub( "^%s*(.-)%s*$", "%1" )
 		-- @TODO: do some real comment cleanup, don't just look for "--"
 		-- "--" is not a comment  token ...
 	end
-
 	local code = table.concat( codeCleanup, " " )
 
-	if MySlash_cmds[index].alias then
-		--print( "there is an alias: "..MySlash_cmds[index].alias )
-		local aliases = { strsplit( " ", MySlash_cmds[index].alias ) }
-		for x = 1, #aliases do
-			_G[("%s%d"):format( cmdName, x+1 )] = ("/%s"):format( string.upper( aliases[x] ) )
-			thing = ("%s%d"):format( cmdName, x+1 )
-			--print( thing )
-		end
+	-- loadstring returns functionRef or nil if error
+	fRef, errMsg = loadstring( code )
+	if fRef then  -- not an error.  Should maybe actually check if a function?
+		SlashCmdList[cmdTable[1]] = fRef  -- assign the function ref to the SlashCmdList table
+	else
+		MySlash.Print( index.." code errored out with: "..errMsg )
+		table.insert( MySlash_log, ("%s code errored out with: %s"):format( index, errMsg ) )
 	end
-	--SlashCmdList[cmdName] = string.format( "function(msg) %s end", code )
-	print("RunScript: "..index )
-	RunScript( ('SlashCmdList["%s"] = function(msg) %s end'):format( cmdName, code ) )
-	--[[
-
-
-	if CMDS[index] then
-		local cmdName = cmdKey:format(strupper(index))
-		local CodeCleanup = {unpack(CODE[index])}
-		for x = 1, #CodeCleanup do
-			CodeCleanup[x] = string.trim( CodeCleanup[x]) -- removes excess spaces at start / end
-			local found = string.find( CodeCleanup[x], "--", 1, true) -- removes comments
-			if found then
-				if found == 1 then
-					CodeCleanup[x] = ""
-				else
-					CodeCleanup[x] = string.sub(CodeCleanup[x], 1, found - 1)
-				end
-			end
-		end
-		local code = string.join(" ", unpack(CodeCleanup) )
-		code = string.format("local saved = SlashMagic_CmdVars['%s'] local static = SlashMagicStaticValues['%s'] ", index, index) .. code
-		RunScript( ('SLASH_%s1 = "/%s"'):format( cmdName, strlower(index) ) )
-		if ALIAS[index] then
-			local aliases = { string.split(" ", ALIAS[index]) }
-			for x = 1, #aliases do
-				RunScript( ('SLASH_%s%d = "/%s"'):format( cmdName, x+1, strlower(aliases[x]) ) )
-			end
-		end
-		RunScript( ('SlashCmdList["%s"] = function(msg) %s end'):format( cmdName, code) )
-	end
-
-	]]
-
 end
 
 
 function MySlash.ADDON_LOADED()
-	MySlash.Frame:UnregisterEvent( "ADDON_LOADED" )
+	MySlash_Frame:UnregisterEvent( "ADDON_LOADED" )
 	MySlash.EnableAll()
 	MySlash.Print( ("ver:%s loaded. Useage: \"/MySlash help\" for help."):format( MYSLASH_MSG_VERSION ) )
 end
@@ -549,8 +184,6 @@ MySlash.commandList = {
 
 }
 
-SLASH_MYSLASH1 = "/MYSLASH"
-SlashCmdList["MYSLASH"] = MySlash.Command
 
 
 

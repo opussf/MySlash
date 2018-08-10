@@ -4,6 +4,8 @@
 ## Author: opussf
 ## Version: @VERSION@
 ## Description: Create custom slash commands.
-## SavedVariables: MySlash_options MySlash_cmds
+## SavedVariables: MySlash_options MySlash_cmds MySlash_log
 ## SavedVariablesPerCharacter:
 MySlash.lua
+MySlash.xml
+

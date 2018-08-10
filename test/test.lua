@@ -7,6 +7,8 @@ require "wowTest"
 
 test.outFileName = "testOut.xml"
 
+MySlash_Frame = CreateFrame( "Frame" )
+
 -- require the file to test
 package.path = "../src/?.lua;" .. package.path
 require "MySlash"
@@ -23,7 +25,7 @@ MySlash_cmds["aliasTest"] = {
 		"print( 'AliasTest' )",
 	},
 }
---[[
+
 function test.before()
 	MySlash.ADDON_LOADED()
 end
@@ -51,9 +53,12 @@ function test.test_Alias_Alias2()
 	assertEquals( "/YARP", SLASH_ALIASTEST3 )
 end
 function test.test_DefaultExtraCommands_command()
+	for k,v in pairs( SlashCmdList ) do
+		print( k..":"..type( v ) )
+	end
 	assertEquals( "function", type( SlashCmdList["ALIASTEST"]))
 end
-]]
+
 
 
 --SLASH_MYSLASH1 = "/MYSLASH"
