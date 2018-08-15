@@ -20,7 +20,7 @@ MySlash_cmds = {
 		["eject"] = {
 			desc = "ejects passenger from seat # or all seats",
 			vers = 1.1,
-			state = on,
+			enabled = true,
 			code = {
 				"msg = math.floor( tonumber(msg) and tonumber(msg) or 0 )",
 				"if msg ~= 0 then",
@@ -32,23 +32,10 @@ MySlash_cmds = {
 				"end" },
 		},
 
-		["xx"] = {
-			desc = "attempts to dismount you and leave any vehicle you are in",
-			vers = 1.05,
-			state = on,
-			code = {
-				"if UnitInVehicle('player') then",
-				"     VehicleExit()",
-				"end",
-				"if IsMounted() then",
-				"     Dismount()",
-				"end" },
-		},
-
 		["exp"] = {
 			desc = "displays your experience and rested experience",
 			vers = 1.15,
-			state = on,
+			enabled = true,
 			code = {
 				"local unit = 'player'",
 				"if(UnitLevel( unit ) < 110) then",
@@ -62,57 +49,8 @@ MySlash_cmds = {
 				"end" },
 		},
 
-		["quitaftertaxi"] = {
-			desc = "quits the game once you land from a taxi flight",
-			vers = 1.14,
-			alias = "qat",
-			state = on,
-			code = {
-				"msg = string.lower(msg)",
-				"if msg == 'cancel' then",
-				"     print('Auto-'..(static.logout and 'Logout' or 'Exit')..' after Taxi has been cancelled')",
-				"     static.cancel = true",
-				"     return",
-				"elseif msg == 'logout' then",
-				"     static.logout = true",
-				"end",
-				"if static.cancel then",
-				"     table.wipe(static)",
-				"     return",
-				"end",
-				"if not(static.count) or static.count == 3 then",
-				"     static.count = 0",
-				"end",
-				"static.count = static.count + 1",
-				"if UnitOnTaxi( 'player' ) then",
-				"     static.running = true",
-				"     if static.count == 1 then",
-				"          print('|cFFFF0000You will '..(static.logout and'Logout of' or 'Exit')..' the game once you land (to cancel type /quitaftertaxi cancel)')",
-				"     end",
-				"elseif not(static.running) and static.count == 1 then",
-				"     print('|cFFFF0000Once you select a flight then land you will '..(static.logout and'Logout of' or 'Exit')..' the game (to cancel type /quitaftertaxi cancel)')",
-				"elseif static.running and static.logout then",
-				"     Logout()",
-				"elseif static.running then",
-				"     ForceQuit()",
-				"end",
-				"BillsUtils.Wait( 5, (MacroEditBox:GetScript('OnEvent')), MacroEditBox, 'EXECUTE_CHAT_LINE', '/quitaftertaxi' )" },
-		},
-
-		["popcorn"] = {
-			desc = "Pop some popcorn",
-			vers = 1.0,
-			alias = "pop",
-			state = on,
-			code = {
-				"if( PlayerHasToy( 162539 ) ) then",
-				"    print( 'Popping corn' )",
-				"    UseToy( 162539 )",
-				"end" },
-		},
 
 	}
-
 
 function MySlash.OnLoad()
 	SLASH_MYSLASH1 = "/MYSLASH"
@@ -128,11 +66,11 @@ function MySlash.Print( msg, showName)
 	end
 	DEFAULT_CHAT_FRAME:AddMessage( msg )
 end
-function MySlash.Enable( index )
+function MySlash.Install( index )
 	-- from index ( 'xx' ) need to create:
 	-- SLASH_XX1 = "/XX"  Note....  SLASH_XX2 = "/<alias>"
 	-- and SlashCmdList["XX"] = funcref
-	--print( "index: "..index )
+	--print( "Install( "..index.." )" )
 
 	-- make the cmdList.  string of all commands and aliases, master cmd being first.  All uppercase
 	local cmdList = string.upper( index ..( MySlash_cmds[index].alias and " "..MySlash_cmds[index].alias or "" ) )
@@ -159,27 +97,70 @@ function MySlash.Enable( index )
 		SlashCmdList[cmdTable[1]] = fRef  -- assign the function ref to the SlashCmdList table
 	else
 		MySlash.Print( index.." code errored out with: "..errMsg )
-		table.insert( MySlash_log, ("%s code errored out with: %s"):format( index, errMsg ) )
+		MySlash_log[time()] = ("%s code errored out with: %s"):format( index, errMsg )
+	end
+end
+function MySlash.Enable( index )
+	if( MySlash_cmds[index] ) then
+		MySlash_cmds[index].enabled = true
+		MySlash.Install( index )
 	end
 end
 
 
 function MySlash.ADDON_LOADED()
 	MySlash_Frame:UnregisterEvent( "ADDON_LOADED" )
-	MySlash.EnableAll()
+	MySlash.InstallAll()
 	MySlash.Print( ("ver:%s loaded. Useage: \"/MySlash help\" for help."):format( MYSLASH_MSG_VERSION ) )
 end
-function MySlash.EnableAll()
+function MySlash.InstallAll()
 	for index, value in pairs( MySlash_cmds ) do
-		if value then
-			MySlash.Enable( index )
+		if value and value.enabled then
+			MySlash.Install( index )
 		end
 	end
 end
 
+function MySlash.List()
+	for index, cmdStruct in pairs( MySlash_cmds ) do
+		MySlash.Print( ("%s/%s%s    %s"):format( ( cmdStruct.enabled and COLOR_GREEN or COLOR_RED ), index, COLOR_END, cmdStruct.desc ), false )
+	end
+end
+
+
+-----------------------
+function MySlash.ParseCmd( msg )
+	if msg then
+		msg = string.lower( msg )
+		local a, b, c = strfind( msg, "(%S+)" )  -- contiguous string of non-space chars.  a = start, b=len, c=str
+		if a then
+			-- c is the matched string
+			return c, strsub( msg, b+2 )
+		else
+			return ""
+		end
+	end
+end
 function MySlash.Command( msg )
-	MySlash.Print( "COMMAND( "..msg.." )" )
+	local cmd, param = MySlash.ParseCmd( msg )
+	local cmdFunc = MySlash.commandList[ cmd ]
+	if cmdFunc then
+		cmdFunc.func( param )
+	end
+end
+function MySlash.PrintHelp()
+	MySlash.Print( MYSLASH_MSG_ADDONNAME.." ("..MYSLASH_MSG_VERSION..") by "..MYSLASH_MSG_AUTHOR )
+	for cmd, info in pairs( MySlash.commandList ) do
+		MySlash.Print( ("%s %s %s -> %s"):format( SLASH_MYSLASH1, cmd, info.help[1], info.help[2] ) )
+	end
 end
 MySlash.commandList = {
-
+	["help"] = {
+		["func"] = MySlash.PrintHelp,
+		["help"] = { "", "Print this help." },
+	},
+	["list"] = {
+		["func"] = MySlash.List,
+		["help"] = { "", "List the slash commands." },
+	},
 }

@@ -20,13 +20,24 @@ MySlash_cmds["aliasTest"] = {
 	desc = "Test of multiple aliases.",
 	vers = 1.14,
 	alias = "at yarp",
-	state = on,
+	enabled = true,
 	code = {
 		"print( 'AliasTest' )",
 	},
 }
+MySlash_cmds["notactive"] = {
+	desc = "Not active",
+	vers = 1,
+	enabled = false,
+	code = {
+		"print( \"Oh yeah\" )",
+	},
+}
 
 function test.before()
+	MySlash_cmds["notactive"].enabled=false
+	SLASH_NOTACTIVE1 = nil
+	MySlash.OnLoad()
 	MySlash.ADDON_LOADED()
 end
 function test.after()
@@ -36,12 +47,6 @@ function test.test_Command_help()
 end
 function test.test_Command_list()
 	MySlash.Command( "list" )
-end
-function test.test_DefaultExtraCommands_normal()
-	assertEquals( "/EJECT", SLASH_EJECT1 )
-end
-function test.test_DefaultExtraCommands_normal2()
-	assertEquals( "/QUITAFTERTAXI", SLASH_QUITAFTERTAXI1 )
 end
 function test.test_Alias_Normal()
 	assertEquals( "/ALIASTEST", SLASH_ALIASTEST1 )
@@ -53,11 +58,16 @@ function test.test_Alias_Alias2()
 	assertEquals( "/YARP", SLASH_ALIASTEST3 )
 end
 function test.test_DefaultExtraCommands_command()
-	for k,v in pairs( SlashCmdList ) do
-		print( k..":"..type( v ) )
-	end
 	assertEquals( "function", type( SlashCmdList["ALIASTEST"]))
 end
+function test.test_NotActive()
+	assertIsNil( SLASH_NOTACTIVE1 )
+end
+function test.test_Enable()
+	MySlash.Enable( "notactive" )
+	assertEquals( "/NOTACTIVE", SLASH_NOTACTIVE1 )
+end
+
 
 
 
